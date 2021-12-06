@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-istio-deploy
+  namespace: test-services
+  labels:
+    app: front-istio
+    version: v1
+spec:
+  selector:
+    matchLabels:
+      app: front-istio
+      version: v1
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: front-istio
+        version: v1
+    spec:
+      containers:
+        - name: front-istio
+          image: acjimeneza/front-istio:1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4200
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-istio
+  namespace: test-services
+  labels:
+    app: front-istio
+spec:
+  type: LoadBalancer
+  selector:
+    app: front-istio
+  ports:
+    - protocol: TCP
+      name: http
+      port: 4200
+      targetPort: 4200
+

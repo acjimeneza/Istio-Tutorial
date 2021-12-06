@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: test-virtual-service
+  namespace: test-services
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - test-gateway
+  http:
+  - name: "test-routes-be"
+    match:
+    - uri:
+        prefix: "/ms/"
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: ms-istio.test-services.svc.cluster.local
+        port:
+          number: 5000
+  - name: "test-routes-fe"
+    route:
+    - destination:
+        host: front-istio.test-services.svc.cluster.local
+        port:
+          number: 4200
+        subset: v1
+      weight: 50
+    - destination:
+        host: front-istio.test-services.svc.cluster.local
+        port:
+          number: 4200
+        subset: v2
+      weight: 50
